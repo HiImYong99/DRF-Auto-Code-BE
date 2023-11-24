@@ -66,3 +66,10 @@ class UserInputDeleteAPIView(APIView):
             id=pk, user=self.request.user)
         user_input.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserInputDeleteAllAPIView(APIView):
+    def delete(self, request, format=None):
+        user_input = UserInput.objects.all()
+        user_input.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
