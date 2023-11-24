@@ -11,6 +11,7 @@ language_select = (
     ('JavaScript', 'JavaScript'),
     ('Kotlin', 'Kotlin'),
     ('Python3', 'Python3'),
+    ('Swift', 'Swift'),
 )
 
 purpose_select = (
@@ -29,15 +30,7 @@ class UserInput(models.Model):
     )
     detail = models.TextField()
 
-    def __str__(self):
-        return f'{self.user}의 {self.language} {self.purpose}'
-
-
-class AIOutput(models.Model):
-    userinput = models.ForeignKey(
-        'main.UserInput', on_delete=models.CASCADE
-    )
     answer = models.TextField()
 
     def __str__(self):
-        return f'{self.userinput}에 대한 응답'
+        return f'{self.user}의 {self.language} {self.purpose}'

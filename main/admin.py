@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import UserInput, AIOutput
+from .models import UserInput
 # Register your models here.
 
 admin.site.register(UserInput)
-admin.site.register(AIOutput)

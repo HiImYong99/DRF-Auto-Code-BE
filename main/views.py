@@ -2,8 +2,8 @@ from django.http import HttpResponseForbidden
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserInputSerializer, AIOutputSerializer
-from .models import UserInput, AIOutput
+from .serializers import UserInputSerializer
+from .models import UserInput
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 
@@ -20,16 +20,10 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 class UserInputRequestAPIView(APIView):
     def get(self, request, format=None):
-        # 이전에 선택한 language, purpose 및 입력한 detail을 가져오기
-        language = request.session.get('language')
-        purpose = request.session.get('purpose')
-        detail = request.session.get('detail')
-
-        return Response({
-            'language': language,
-            'purpose': purpose,
-            'detail': detail
-        })
+        #  language, purpose 및 입력한 detail을 가져오기
+        qs = UserInput.objects.filter(user=self.request.user)
+        serializer = UserInputSerializer(qs, many=True)
+        return Response(serializer.data)
 
     def post(self, request, format=None):
         permission_claases = [IsAuthenticated]
@@ -56,14 +50,19 @@ class UserInputRequestAPIView(APIView):
         if response:
             # UserInput 모델에 저장
             user_input = UserInput.objects.create(
-                user=user, language=language, purpose=purpose, detail=detail)
+                user=user, language=language, purpose=purpose, detail=detail, answer=response)
         # AIOutput 모델에 응답 저장
-        answer = AIOutput(answer=response, userinput=user_input)
-        answer.save()
-
         # 세션에 선택한 language, purpose, detail 저장
         request.session['language'] = language
         request.session['purpose'] = purpose
         request.session['detail'] = detail
 
         return Response({'language': language, 'purpose': purpose, 'detail': detail, 'answer': response}, status=status.HTTP_200_OK)
+
+
+class UserInputDeleteAPIView(APIView):
+    def delete(self, request, pk, format=None):
+        user_input = UserInput.objects.get(
+            id=pk, user=self.request.user)
+        user_input.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
