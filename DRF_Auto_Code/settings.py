@@ -12,17 +12,18 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-
+import os
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
+SECRET_KEY = os.getenv('SECRET_KEY')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-p#+wzmya0fdr2u1gp)3fki$-*-=qq-mb0)0v_m78_8w$7(s9e2'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.kakao',
     "corsheaders",
     # App
     'accounts',
@@ -134,7 +136,7 @@ TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -165,7 +167,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'  # 로그인 인증 수단
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # email 인증 필수 여부
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # AccessToken 유효 기간 설정
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),  # AccessToken 유효 기간 설정
     # RefreshToken 유효 기간 설정
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
