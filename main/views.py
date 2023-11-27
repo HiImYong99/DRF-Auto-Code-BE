@@ -19,6 +19,8 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 
 class UserInputRequestAPIView(APIView):
+    Permission_claases = [IsAuthenticated]
+
     def get(self, request, format=None):
         #  language, purpose 및 입력한 detail을 가져오기
         qs = UserInput.objects.filter(user=self.request.user)
@@ -26,7 +28,6 @@ class UserInputRequestAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        permission_claases = [IsAuthenticated]
         # 사용자 입력 받아오기
         language = request.data.get('language')
         purpose = request.data.get('purpose')
@@ -61,6 +62,8 @@ class UserInputRequestAPIView(APIView):
 
 
 class UserInputDeleteAPIView(APIView):
+    Permission_claases = [IsAuthenticated]
+
     def delete(self, request, pk, format=None):
         user_input = UserInput.objects.get(
             id=pk, user=self.request.user)
@@ -69,6 +72,8 @@ class UserInputDeleteAPIView(APIView):
 
 
 class UserInputDeleteAllAPIView(APIView):
+    Permission_claases = [IsAuthenticated]
+
     def delete(self, request, format=None):
         user_input = UserInput.objects.all()
         user_input.delete()
