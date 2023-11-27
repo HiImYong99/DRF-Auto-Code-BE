@@ -148,7 +148,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# dj-rest-auth 최신버전 설정
+
 REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'my-app-auth',
@@ -158,29 +158,38 @@ REST_AUTH = {
 }
 
 # django-allauth
-SITE_ID = 1  # 해당 도메인 id
-ACCOUNT_UNIQUE_EMAIL = True  # User email unique 사용 여부
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # 사용자 이름 필드 지정
-ACCOUNT_USERNAME_REQUIRED = False  # User username 필수 여부
-ACCOUNT_EMAIL_REQUIRED = True  # User email 필수 여부
-ACCOUNT_AUTHENTICATION_METHOD = 'email'  # 로그인 인증 수단
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # email 인증 필수 여부
+SITE_ID = 1
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),  # AccessToken 유효 기간 설정
+    # AccessToken 유효 기간 설정
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     # RefreshToken 유효 기간 설정
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+        # 'rest_framework.throttling.AnonRateThrottle',
+        # 'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'dj_rest_auth': '5/day',
+        'request': '5/day',
+    }
 }
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 AUTH_USER_MODEL = 'accounts.User'

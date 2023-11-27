@@ -2,11 +2,12 @@ from django.http import HttpResponseForbidden
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle, ScopedRateThrottle
 from .serializers import UserInputSerializer
 from .models import UserInput
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.decorators import throttle_classes
 
 from django.views import View
 from dotenv import load_dotenv
@@ -18,14 +19,17 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 
-class UserInputRequestAPIView(APIView):
-    Permission_claases = [IsAuthenticated]
-
+class UserInputGetAPIView(APIView):
     def get(self, request, format=None):
         #  language, purpose 및 입력한 detail을 가져오기
         qs = UserInput.objects.filter(user=self.request.user)
         serializer = UserInputSerializer(qs, many=True)
         return Response(serializer.data)
+
+
+class UserInputRequestAPIView(APIView):
+    Permission_claases = [IsAuthenticated]
+    throttle_scope = 'request'
 
     def post(self, request, format=None):
         # 사용자 입력 받아오기
@@ -59,6 +63,12 @@ class UserInputRequestAPIView(APIView):
         request.session['detail'] = detail
 
         return Response({'language': language, 'purpose': purpose, 'detail': detail, 'answer': response}, status=status.HTTP_200_OK)
+
+    def throttle_failure(self, rate_limit, scope):
+        return Response(
+            {"error": "Throttle limit exceeded. Please wait before trying again."},
+            status=status.HTTP_429_TOO_MANY_REQUESTS
+        )
 
 
 class UserInputDeleteAPIView(APIView):
