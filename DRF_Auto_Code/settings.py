@@ -187,7 +187,7 @@ REST_FRAMEWORK = {
         # 'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'dj_rest_auth': '5/day',
+        'dj_rest_auth': '1000/day',
         'request': '5/day',
     }
 }
