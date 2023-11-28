@@ -167,9 +167,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 SIMPLE_JWT = {
-    # AccessToken 유효 기간 설정
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    # RefreshToken 유효 기간 설정
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
@@ -183,8 +181,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.ScopedRateThrottle',
-        # 'rest_framework.throttling.AnonRateThrottle',
-        # 'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
         'dj_rest_auth': '1000/day',

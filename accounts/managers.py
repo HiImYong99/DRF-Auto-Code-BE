@@ -6,7 +6,6 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password, **kwargs):
         if not email:
             raise ValueError('올바른 이메일 형식이 아닙니다.')
-
         user = self.model(
             email=email,
         )

@@ -1,15 +1,10 @@
-from django.http import HttpResponseForbidden
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.throttling import UserRateThrottle, ScopedRateThrottle
 from .serializers import UserInputSerializer
 from .models import UserInput
-from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import throttle_classes
 
-from django.views import View
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
@@ -20,24 +15,28 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 
 class UserInputGetAPIView(APIView):
+    '''
+    DB에 저장된 요청 및 응답 값 로드
+    '''
+
     def get(self, request, format=None):
-        #  language, purpose 및 입력한 detail을 가져오기
         qs = UserInput.objects.filter(user=self.request.user)
         serializer = UserInputSerializer(qs, many=True)
         return Response(serializer.data)
 
 
 class UserInputRequestAPIView(APIView):
-    Permission_claases = [IsAuthenticated]
-    throttle_scope = 'request'
+    '''
+    OpenAI api 연결 및 요청 및 응답 값 DB저장
+    '''
+    Permission_claases = [IsAuthenticated]  # 로그인을 한 유저만 사용 가능
+    throttle_scope = 'request'  # 각 유저당 하루 5번만 요청 가능
 
     def post(self, request, format=None):
-        # 사용자 입력 받아오기
         language = request.data.get('language')
         purpose = request.data.get('purpose')
         detail = request.data.get('detail')
 
-        # 현재 로그인한 사용자 확인
         user = request.user
         model_engine = "text-davinci-003"
         prompt = f"Language: {language}\nPurpose: {purpose}\nDetail: {detail}\n"
@@ -50,18 +49,11 @@ class UserInputRequestAPIView(APIView):
             stop=None,
             temperature=0.5
         )
-
         response = completion.choices[0].text.strip()
         if response:
             # UserInput 모델에 저장
-            user_input = UserInput.objects.create(
+            UserInput.objects.create(
                 user=user, language=language, purpose=purpose, detail=detail, answer=response)
-        # AIOutput 모델에 응답 저장
-        # 세션에 선택한 language, purpose, detail 저장
-        request.session['language'] = language
-        request.session['purpose'] = purpose
-        request.session['detail'] = detail
-
         return Response({'language': language, 'purpose': purpose, 'detail': detail, 'answer': response}, status=status.HTTP_200_OK)
 
     def throttle_failure(self, rate_limit, scope):
@@ -72,7 +64,10 @@ class UserInputRequestAPIView(APIView):
 
 
 class UserInputDeleteAPIView(APIView):
-    Permission_claases = [IsAuthenticated]
+    '''
+    DB에 저장된 값 삭제 
+    '''
+    Permission_claases = [IsAuthenticated]  # 로그인을 한 유저만 사용 가능
 
     def delete(self, request, pk, format=None):
         user_input = UserInput.objects.get(
@@ -82,7 +77,10 @@ class UserInputDeleteAPIView(APIView):
 
 
 class UserInputDeleteAllAPIView(APIView):
-    Permission_claases = [IsAuthenticated]
+    '''
+    DB에 저장된 값 전체 삭제
+    '''
+    Permission_claases = [IsAuthenticated]  # 로그인을 한 유저만 사용 가능
 
     def delete(self, request, format=None):
         user_input = UserInput.objects.all()
