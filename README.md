@@ -8,7 +8,7 @@
 
 </div>
 
-## Auto-Code-Django
+## DRF-Auto-Code
 
 - 1차 개발기간: 23.08.29 ~ 23.09.06 (9일)
 
@@ -64,7 +64,8 @@ Django REST Framework을 활용하여 회원가입, 로그인, 로그아웃 기�
 ID : test1@gmail.com
 PW : test2023
 ```
- - Front-End Repo: https://github.com/HiImYong99/DRF-Auto-Code-FE
+ - Front-End Repo: <a href="https://github.com/HiImYong99/DRF-Auto-Code-FE" target="_blank">DRF-Auto-Code-FE</a>
+ 
 
 ---
 
@@ -104,7 +105,7 @@ PW : test2023
 <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
 <img src="https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white">
 
-- #### DBMS
+- #### DB
 <img src="https://img.shields.io/badge/sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white">
 
 - #### API
@@ -122,23 +123,23 @@ PW : test2023
 
 
 #### main
-|이름|URL|Method|
+|기능|URL|Method|
 |------|---|---|
-|랜딩페이지|gpt/||
-|내 기록|request/||
-|내 기록|request/||
-|내 기록|request/||
-|내 기록|request/||
-|내 기록|request/||
+|코드 요청|gpt/request/|POST|
+|기록 조회|gpt/response/|GET|
+|기록 삭제|gpt/delete/\<int:pk>/|DELETE|
+|기록 전체 삭제|gpt/delete/all/|DELETE|
+
 
 #### accounts
-|이름|URL|Method|
+|기능|URL|Method|
 |------|---|---|
 |로그인|accounts/login/|POST|
 |로그아웃|accounts/logout/|POST|
 |회원가입|accounts/register/|POST|
+|토큰 재발급|accounts/token/refresh/|POST|
 
-
+API 명세 추가 예정
  
 ### 폴더 트리🌳
 ``` tree
@@ -192,14 +193,19 @@ PW : test2023
 | :-------------------------------------: |
 | <img src="readmefile/main.png">  |
 
-#### ⭐️ 
+#### ⭐️ 자동 코드 생성
 
-- 
+- AI가 사용자의 요청을 기반으로 코드를 자동으로 생성합니다.
 
-#### ⭐️ 
+#### ⭐️ 회원관리
 
-- 이메일과 비밀번호를 통한 로그인을 할 수 있습니다.
+- 이메일과 비밀번호를 통한 회원가입 및 로그인을 할 수 있습니다.
 
+#### ⭐️ 기록 관리
+
+- 각 사용자가 서비스를 이용한 횟수, 가장 자주 사용한 언어와 기능을 확인할 수 있습니다.
+
+- 또한 이전에 요청한 내용과 AI의 답변을 간편하게 조회하고 관리할 수 있습니다.
 
 
 
@@ -338,8 +344,166 @@ AI의 응답이 완료되면 응답 받은 내용을 html 문서에 출력합니
 
 ---
 
-## <span id="errors">겪었던 에러들 😑
- 
+## <span id="errors">겪었던 에러 😑
+
+### 로컬환경 JWT 전달
+
+#### 에러
+
+API 테스트를 마친 뒤 FE와 연결하던 도중 문제가 발생했습니다.
+
+로그인 완료 후 쿠키에 JWT 토큰이 저장되어야 하는데  토큰이 발급되자마자 쿠키가 전부 사라지는 이슈를 겪었습니다.
+
+#### 원인
+
+- 확인해 보니 CORS 에러가 발생 했습니다.
+
+```
+CORS는 
+
+브라우저에서는 보안적인 이유로 cross-origin HTTP 요청들을 제한합니다. 그래서 cross-origin 요청을 하려면 서버의 동의가 필요합니다. 만약 서버가 동의한다면 브라우저에서는 요청을 허락하고, 동의하지 않는다면 브라우저에서 거절합니다.
+
+이러한 허락을 구하고 거절하는 메커니즘을 HTTP-header를 이용해서 가능한데, 이를 CORS(Cross-Origin Resource Sharing)라고 부릅니다.
+```
+
+```
+cross-origin
+cross-origin이란 다음 중 한 가지라도 다른 경우를 말합니다.
+
+프로토콜 - http와 https는 프로토콜이 다르다.
+도메인 - domain.com과 other-domain.com은 다르다.
+포트 번호 - 8000포트와 5500포트는 다르다.
+```
+
+- 따라서 클라이언트는 `localhost:5500` 외부 서버는 `localhost:8000`로 포트가 서로 달라서 CORS가 발생한 것 이였습니다.
+
+#### 해결방법
+
+- 외부 서버에서 보내는 요청의 헤더에 cross origin HTTP 요청을 허가하여 접근을 허락하는 내용을 추가하면 됩니다.
+    - django-cors-headers 앱을 추가합니다. `pip install django-cors-headers`
+    
+    ```python
+    INSTALLED_APPS = [
+        ...
+        'corsheaders',
+        ...
+    ]
+    ```
+    
+    ```python
+    MIDDLEWARE = [
+        'corsheaders.middleware.CorsMiddleware', # <- 가능한 높게 위치시켜야 한다.
+        'django.middleware.common.CommonMiddleware', 
+        ...
+    ]
+    ```
+    
+    - 호스트를 허용하는 설정을 합니다.
+    
+    ```python
+    CORS_ORIGIN_ALLOW_ALL = True # <- 모든 호스트 허용
+    
+    # or 
+    
+    CORS_ALLOWED_ORIGINS = [
+        'http://127.0.0.1:5500',
+        "http://127.0.0.1:8000",
+    ]
+    ```
+    
+    - CORS_ALLOW_CREDENTIALS 설정을 합니다.
+    
+    ```python
+    CORS_ALLOW_CREDENTIALS = True # <- 쿠키가 cross-site HTTP 요청에 포함
+    #CORS_ALLOW_CREDENTIALS = False # <- 쿠키가 cross-site HTTP 요청에 미포함 (기본값)
+    ```
+
+    - 클라이언트 JS코드에 자격 증명을 설정해줍니다.(Credentials) 
+    ```jsx
+      await fetch(`${url}/accounts/login/`, {
+    method: "POST",
+    headers: {},
+    credentials: "include", // <- 자격 증명 설정
+            //   "same-origin" <- Same-origin 호출만 포함(기본 값)
+            //   "omit"        <- 자격 증명을 절대 포함하지 않음
+    ...
+    })
+    ```
+위와 같은 설정을 통해 로컬환경에서 JWT를 잘 전달할 수 있었습니다.
+
+---
+
+### 서버 배포후 JWT 전달 
+
+#### 에러
+JWT을 활용하여 JWT 관련 토큰들은 쿠키 형태로 저장하여 관리하고 있었습니다.
+
+로컬 환경에서 CORS 관련 설정을 완료하여 클라이언트는 `localhost:5500` 외부 서버는 `localhost:8000`의 통신을 확인한 뒤
+
+서버 배포를 진행했는데  문제가 발생했습니다.
+
+이전에 로컬환경에서 겪었던 JWT 토큰이 발급되자마자 쿠키가 전부 사라지는 이슈를 겪었습니다.
+
+개발자 도구 → Network를 확인해 보니
+
+<img src="readmefile/cors.png">
+
+다음과 같은 에러를 확인할 수 있었습니다.
+
+#### 원인
+
+- 쿠키의 서로 다른 도메인 간의 쿠키 전송에 대한 보안으로 인해 전송이 불가능했던 것.
+- 로컬 환경에서는 서로 같은 도메인인`localhost`로 모두 같았기 때문이 전송이 가능했던 것이다.
+
+#### 해결 방법
+
+- ##### Cookie SameSite 설정
+
+다음과 같이  “SameSite=None”으로 설정을 통해 서로 다른 도메인이여도 쿠키전송이 가능하도록 설정하였다.
+
+```python
+# settings.py
+
+SESSION_COOKIE_SECURE = True  # 세션 쿠키에 Secure 속성 추가
+CSRF_COOKIE_SECURE = True  # CSRF 쿠키에 Secure 속성 추가
+SESSION_COOKIE_SAMESITE = None  # 세션 쿠키에 SameSite=None 속성 추가
+CSRF_COOKIE_SAMESITE = None  # CSRF 쿠키에 SameSite=None 속성 추가
+```
+
+하지만 그럼에도 에러는 해결되지 않았다.
+
+위와 같은 설정은 SameSite=None 및 Secure 속성은 안전하지 않은 연결(HTTP)에서는 작동하지 않는다는 것이었습니다.
+
+현재 서버는 HTTP 프로토콜로 배포하고 있었으며 위와 같은 설정은 적용할 수 없었으며 Secure 속성이 추가된 쿠키는 HTTPS 프로토콜에서만 전송이 가능하다는 것입니다.
+
+- ##### 로컬 스토리지 활용
+
+JavaScript 코드를 사용하여 JWT를 로컬 스토리지에 먼저 저장하고 저장한 로컬 스토리지를 불러와 쿠키에 저장하는 방식으로 JWT를 저장하는 방식을 사용했습니다.
+
+```jsx
+await fetch(`${url}/accounts/login/`, {
+.
+.
+.
+.then(data => {
+				saveToken("my-app-auth", data.access);
+        saveCookie("my-app-auth", getToken("my-app-auth"));
+        saveToken("my-refresh-token", data.refresh);
+        saveCookie("my-refresh-token", getToken("my-refresh-token"));
+        location.href = "/index.html";
+}
+.
+.
+.
+}
+```
+
+- 문제
+    - 현재 JWT 토큰을 로컬 스토리지와 쿠키에 모두 저장하고 있습니다.
+    - 로컬 스토리지는 JavaScript로 쉽게 접근 가능하므로 토큰이 노출될 경우 문제가 생길 수 있습니다.
+
+위와 같은 이유로 위 방식은 권장되지 않지만 당장 수정 개발이 힘들기 때문에 임시로 해결하기 위해 로컬 스토리지를 사용하여 해결하기로 했습니다.
+
 
 <br>
 
@@ -347,12 +511,11 @@ ___
 
 ## <span id="impression">개발하며 느낀점 🧑‍💻
 
-### 배운점 ✏️
-
-
 
 
 ### 느낀점 ✍️
+
+추가예정
 
 ---
 <a href='#'>⬆️ 맨 위로 ⬆️ </a> 
