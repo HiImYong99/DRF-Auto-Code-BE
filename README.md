@@ -6,7 +6,7 @@
 <div align="center">
 <img width="329" src="readmefile/auto-coding-logo.png" >
 
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHiImYong99%2FDRF-Auto-Code-BE&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+<!-- [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FHiImYong99%2FDRF-Auto-Code-BE&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com) -->
 </div>
 
 ## DRF-Auto-Code
@@ -154,13 +154,13 @@ GitBook으로 작성되었습니다. - <a href="https://drf-auto-code.gitbook.io
 ``` tree
 📦 DRF_Auto_Code
 
-├─ 📂 DRF_Auto_Code
+├─ 📂 DRF_Auto_Code - 프로젝트의 기본적인 세팅
 │  ├─ __init__.py
 │  ├─ asgi.py
 │  ├─settings.py
 │  ├─ urls.py
 │  └─ wsgi.py
-├─ 📂 accounts
+├─ 📂 accounts      - 회원관리(회원가입,로그인,로그아웃) API
 │  ├─ __init__.py
 │  ├─admin.py
 │  ├─apps.py
@@ -170,7 +170,7 @@ GitBook으로 작성되었습니다. - <a href="https://drf-auto-code.gitbook.io
 │  ├─tests.py
 │  ├─ urls.py
 │  └─ views.py
-├─ 📂 main
+├─ 📂 main      - 메인서비스(GPT 요청 및 응답값 관리) API
 │  ├─ __init__.py
 │  ├─admin.py
 │  ├─apps.py
