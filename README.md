@@ -26,7 +26,7 @@
 
 4. [요구사항 분석](#requirement)
 
-5. [기술 스택](#stack)
+5. [기술 스택 및 배포환경](#stack)
 
 6. [프로젝트 구조](#tree)
 
@@ -83,7 +83,7 @@ PW : test2023
 
 ---
 
-## <span id="stack">기술 스택📚
+## <span id="stack">기술 스택 및 배포환경📚
 
 ### Environment
 
@@ -115,6 +115,10 @@ PW : test2023
 - #### 배포
 <img src="https://img.shields.io/badge/amazonaws-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
 
+<br>
+
+<img src="readmefile/architecture.png">
+
 ---
 
 ## <span id="tree">프로젝트 구조 🏛️
@@ -123,23 +127,27 @@ PW : test2023
 
 
 #### main
-|기능|URL|Method|
-|------|---|---|
-|코드 요청|gpt/request/|POST|
-|기록 조회|gpt/response/|GET|
-|기록 삭제|gpt/delete/\<int:pk>/|DELETE|
-|기록 전체 삭제|gpt/delete/all/|DELETE|
+|기능|URL|Method|비고|
+|------|---|---|---|
+|코드 요청|gpt/request/|POST|로그인 사용자만 가능, 1일 요청 최대 5회|
+|기록 조회|gpt/response/|GET|사용자 본인의 기록만 조회 가능|
+|기록 삭제|gpt/delete/\<int:pk>/|DELETE|사용자 본인의 기록만 삭제 가능|
+|기록 전체 삭제|gpt/delete/all/|DELETE|사용자 본인의 기록만 삭제 가능|
 
 
 #### accounts
-|기능|URL|Method|
-|------|---|---|
-|로그인|accounts/login/|POST|
-|로그아웃|accounts/logout/|POST|
-|회원가입|accounts/register/|POST|
-|토큰 재발급|accounts/token/refresh/|POST|
+|기능|URL|Method|비고|
+|------|---|---|---|
+|로그인|accounts/login/|POST|액세스 토큰과 리프레쉬 토큰을 제공|
+|로그아웃|accounts/logout/|POST|액세스 토큰과 리프레쉬 토큰만료 (토큰 만료 시간 30분) |
+|회원가입|accounts/register/|POST|액세스 토큰과 리프레쉬 토큰을 제공|
+|토큰 재발급|accounts/token/refresh/|POST|리프레쉬 토큰을 통한 액세스 토큰 재발급 (사용자가 페이지를 새로고침할 때 재발급)|
 
-API 명세 추가 예정
+### API 명세서 🧾
+
+<img src="readmefile/api_receipt.png">
+
+GitBook으로 작성되었습니다. - <a href="https://drf-auto-code.gitbook.io/api/">API 명세 바로가기</a>
  
 ### 폴더 트리🌳
 ``` tree
@@ -258,7 +266,7 @@ API 명세 추가 예정
 | <img src="readmefile/auto_logout.gif">  |
 
 ```
-사용자가 30분 동안 가만히 있으면 사용자는 자동으로 로그아웃이 됩니다.
+사용자가 30분 동안 페이지 새로고침을 하지 않으면 사용자는 자동으로 로그아웃이 됩니다.
 
 로그아웃 완료 시 메인페이지로 이동합니다.
 ```
@@ -486,7 +494,7 @@ await fetch(`${url}/accounts/login/`, {
 .
 .
 .then(data => {
-				saveToken("my-app-auth", data.access);
+        saveToken("my-app-auth", data.access);
         saveCookie("my-app-auth", getToken("my-app-auth"));
         saveToken("my-refresh-token", data.refresh);
         saveCookie("my-refresh-token", getToken("my-refresh-token"));
@@ -495,7 +503,7 @@ await fetch(`${url}/accounts/login/`, {
 .
 .
 .
-}
+)
 ```
 
 - 문제
@@ -515,7 +523,9 @@ ___
 
 ### 느낀점 ✍️
 
-추가예정
+- 이번 프로젝트에서 DRF를 통해 Djang 안에서 RESTful API 서버를 쉽게 만들어 볼 수 있었습니다. 모놀리식과 비교하면 프론트엔드와 백엔드를 혼자 개발을 했기 때문에 복잡성과 개발 생산성 저하를 체감할 수 있었습니다. 하지만 개인 프로젝트가 아닌 조금 더 규 모있는 프로젝트에서 유지 보수와 확장성의 장점을 짐작할 수 있었습니다.
+
+- JWT 인증 방식을 적용해 봤는데 CORS와 관련한 에러들을 경험하면서 CORS에 관련한 이슈를 다음번에는 보다 유연하게 해결할 수 있을 것 같았습니다.
 
 ---
 <a href='#'>⬆️ 맨 위로 ⬆️ </a> 
